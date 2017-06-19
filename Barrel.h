@@ -5,13 +5,15 @@
 #define Barrel_h
 
 #include "Arduino.h"
+#include "Consts.h"
+#include "Easing.h"
 #include "FastLED.h"
 
-#define LED_MUZZLE 0 
-#define LED_FRONT 1
-#define LED_MIDDLE 2
-#define LED_BACK 3
-#define LED_MAX 3
+#define BARREL_LED_MUZZLE 0 
+#define BARREL_LED_FRONT 1
+#define BARREL_LED_MIDDLE 2
+#define BARREL_LED_BACK 3
+#define BARREL_LED_MAX 3
 
 #define BARREL_MODE_CHARGED 0
 #define BARREL_MODE_FIRING 1

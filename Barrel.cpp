@@ -2,18 +2,16 @@
   Barrel.cpp - Defines a barrel for Fiona's gun
 */
 
-#include "Arduino.h"
 #include "Barrel.h"
-#include "Easing.h"
-#include "FastLED.h"
 
 Barrel::Barrel(int reedPin, CRGB* muzzleLed, CRGB* frontLed, CRGB* middleLed, CRGB* backLed)
 {
+  Serial.print("Barrel::Barrel()");
   _reedPin = reedPin;
-  _leds[LED_MUZZLE] = muzzleLed;
-  _leds[LED_FRONT] = frontLed;
-  _leds[LED_MIDDLE] = middleLed;
-  _leds[LED_BACK] = backLed;
+  _leds[BARREL_LED_MUZZLE] = muzzleLed;
+  _leds[BARREL_LED_FRONT] = frontLed;
+  _leds[BARREL_LED_MIDDLE] = middleLed;
+  _leds[BARREL_LED_BACK] = backLed;
   
   _frame = 0;
   _mode = BARREL_MODE_CHARGED;
@@ -39,8 +37,8 @@ void Barrel::tick()
 void Barrel::cylonTick(float eyePosition)
 {
   float ledAwareness = 0.3;
-  for (int led = 0; led <= LED_MAX; led++) {
-    float ledPosition = (float) led / LED_MAX;
+  for (int led = 0; led <= BARREL_LED_MAX; led++) {
+    float ledPosition = (float) led / BARREL_LED_MAX;
     float ledDistance = abs(ledPosition - eyePosition);
     if (ledDistance < ledAwareness) {
       setLedX(led, ((ledAwareness - ledDistance) / ledAwareness) * 255);
@@ -54,7 +52,7 @@ void Barrel::rainbowTick(float seed)
 {
   int rot = 360 * seed;
   
-  for (int led = 0; led <= LED_MAX; led++) {
+  for (int led = 0; led <= BARREL_LED_MAX; led++) {
     setLedRot(led, rot);
   }
 }
@@ -63,7 +61,7 @@ void Barrel::tranquilityTick(float seed)
 {
   int rot = 360 * seed;
   
-  for (int led = 0; led <= LED_MAX; led++) {
+  for (int led = 0; led <= BARREL_LED_MAX; led++) {
     setLedRot(led, rot);
   }
 }
@@ -72,15 +70,15 @@ void Barrel::partyTick(float seed)
 {
   int rot = 360 * seed;
   
-  setLedRot(LED_MUZZLE, rot - 80);
-  setLedRot(LED_FRONT, rot - 40);
-  setLedRot(LED_MIDDLE, rot);
-  setLedRot(LED_BACK, rot + 40);
+  setLedRot(BARREL_LED_MUZZLE, rot - 80);
+  setLedRot(BARREL_LED_FRONT, rot - 40);
+  setLedRot(BARREL_LED_MIDDLE, rot);
+  setLedRot(BARREL_LED_BACK, rot + 40);
 }
 
 void Barrel::debugTick(int selectedLed)
 {
-  for (int led = 0; led <= LED_MAX; led++) {
+  for (int led = 0; led <= BARREL_LED_MAX; led++) {
     setLedX(led, (led == selectedLed ? 255 : 0));
   }
 }
@@ -159,13 +157,13 @@ void Barrel::setLedRot(int led, int rot)
 
 void Barrel::chargedTick() 
 { 
-  for (int led = 0; led <= LED_MAX; led++) {
-     setLedX(led, getChargedFrameIntensity(_frame, CHARGED_DURATION * 30) * 255);
+  for (int led = 0; led <= BARREL_LED_MAX; led++) {
+     setLedX(led, getChargedFrameIntensity(_frame, CHARGED_DURATION * FRAMES_PER_SECOND) * 255);
   }
-  setLedX(LED_MUZZLE, (CHARGED_INTENSITY_MIN + CHARGED_INTENSITY_MAX) / 2);
+  setLedX(BARREL_LED_MUZZLE, (CHARGED_INTENSITY_MIN + CHARGED_INTENSITY_MAX) / 2);
     
   _frame++;
-  if (_frame >= CHARGED_DURATION * 30) {
+  if (_frame >= CHARGED_DURATION * FRAMES_PER_SECOND) {
     _frame = 0;
   }
 }
