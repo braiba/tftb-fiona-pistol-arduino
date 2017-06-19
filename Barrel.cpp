@@ -6,7 +6,6 @@
 
 Barrel::Barrel(int reedPin, CRGB* muzzleLed, CRGB* frontLed, CRGB* middleLed, CRGB* backLed)
 {
-  Serial.print("Barrel::Barrel()");
   _reedPin = reedPin;
   _leds[BARREL_LED_MUZZLE] = muzzleLed;
   _leds[BARREL_LED_FRONT] = frontLed;
@@ -157,13 +156,14 @@ void Barrel::setLedRot(int led, int rot)
 
 void Barrel::chargedTick() 
 { 
+  int totalFrames =  CHARGED_DURATION * FRAMES_PER_SECOND;
   for (int led = 0; led <= BARREL_LED_MAX; led++) {
-     setLedX(led, getChargedFrameIntensity(_frame, CHARGED_DURATION * FRAMES_PER_SECOND) * 255);
+    setLedX(led, getChargedFrameIntensity(_frame, totalFrames) * 255);
   }
   setLedX(BARREL_LED_MUZZLE, (CHARGED_INTENSITY_MIN + CHARGED_INTENSITY_MAX) / 2);
     
   _frame++;
-  if (_frame >= CHARGED_DURATION * FRAMES_PER_SECOND) {
+  if (_frame >= totalFrames) {
     _frame = 0;
   }
 }
@@ -176,11 +176,11 @@ float Barrel::getChargedFrameIntensity(int frame, int totalFrames)
     frame -= totalFrames;
   }
   
-  float translatedFrame = (float) frame;
+  int translatedFrame = frame;
   if (translatedFrame > journeyDuration) {
-    translatedFrame = (float) (totalFrames - frame);
+    translatedFrame =  (totalFrames - frame);
   }
   
-  return Easing::easeInOutQuad(translatedFrame, CHARGED_INTENSITY_MIN, CHARGED_INTENSITY_MAX - CHARGED_INTENSITY_MIN, journeyDuration);
+  return Easing::easeInOutQuad((float) translatedFrame, CHARGED_INTENSITY_MIN, CHARGED_INTENSITY_MAX - CHARGED_INTENSITY_MIN, journeyDuration);
 }
 

@@ -16,9 +16,9 @@ class Gun {
     Barrel* _barrels[3];
 
     void tick();
-    boolean triggerPressed();
-    boolean triggerHeld(int holdType);
-    boolean triggerReleased(int holdType);
+    boolean onTriggerPressed();
+    boolean onTriggerHeld(int holdType);
+    boolean onTriggerReleased(int holdType);
     
     void setGunMode(GunMode* newgunMode);
     void resetColourMasks();
@@ -27,6 +27,13 @@ class Gun {
   private:
     CRGB _leds[NUM_LEDS];
     GunMode* _gunMode;
+    
+    bool _triggerHeld = false;
+    bool _triggerResolved = false;
+    unsigned long _triggerHoldStart = 0;
+    int _triggerHoldType = 0;
+
+    void checkTrigger();
 };
 
 

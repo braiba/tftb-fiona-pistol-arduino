@@ -1,8 +1,8 @@
 #include "Buttons.h"
 
 int Buttons::getHoldType(unsigned long duration) {
-  if (duration >= HOLD_DURATION_DEBUG) {
-    return HOLD_TYPE_DEBUG;
+  if (duration >= HOLD_DURATION_VERY_LONG) {
+    return HOLD_TYPE_VERY_LONG;
   }
   if (duration >= HOLD_DURATION_LONG) {
     return HOLD_TYPE_LONG;

@@ -4,81 +4,113 @@
 
 #include "Arduino.h"
 #include "Barrel.h"
+#include "Buttons.h"
 #include "FastLED.h"
 #include "Gun.h"
 #include "GunModes.h"
 
 Gun::Gun()
 {
-  Serial.print("Gun::Gun()");
+  pinMode(PIN_TRIGGER, INPUT);
   FastLED.addLeds<WS2812, PIN_DATA, GRB>(_leds, NUM_LEDS);
   
-  Barrel redBarrel = Barrel(
+  _barrels[BARREL_RED] = new Barrel(
     PIN_REED_BARREL_RED,
     &_leds[LED_RED_MUZZLE],
     &_leds[LED_RED_FRONT],
     &_leds[LED_RED_MIDDLE],
     &_leds[LED_RED_BACK]
   );
-  _barrels[BARREL_RED] = &redBarrel;
   
-  Barrel greenBarrel = Barrel(
+  _barrels[BARREL_GREEN] = new Barrel(
     PIN_REED_BARREL_GREEN,
     &_leds[LED_GREEN_MUZZLE],
     &_leds[LED_GREEN_FRONT],
     &_leds[LED_GREEN_MIDDLE],
     &_leds[LED_GREEN_BACK]
   );
-  _barrels[BARREL_GREEN] = &greenBarrel;
   
-  Barrel blueBarrel = Barrel(
+  _barrels[BARREL_BLUE] = new Barrel(
     PIN_REED_BARREL_BLUE,
     &_leds[LED_BLUE_MUZZLE],
     &_leds[LED_BLUE_FRONT],
     &_leds[LED_BLUE_MIDDLE],
     &_leds[LED_BLUE_BACK]
   );
-  _barrels[BARREL_BLUE] = &blueBarrel;
+  
+  // For some reason this currently stops the memory allocation issues
+  FastLED.show();
 
-  ActiveGunMode *gunMode;
-  setGunMode(gunMode->getInstance());
+  setGunMode(ActiveGunMode::getInstance());
 }
 
 void Gun::setGunMode(GunMode* newGunMode)
 {
   _gunMode = newGunMode;
+  newGunMode->onEnter(*this);
 }
 
 void Gun::tick()
 {
+  checkTrigger();
   _gunMode->tick(*this);
+  
+  FastLED.show();
 }
 
-boolean Gun::triggerPressed()
+void Gun::checkTrigger() {
+  int triggerState = digitalRead(PIN_TRIGGER);
+  if (triggerState == HIGH) {
+    if (_triggerHeld == false) {
+      _triggerHeld = true;
+      _triggerHoldStart = millis();
+      _triggerHoldType = HOLD_TYPE_NONE;
+      if (onTriggerPressed()) {
+        _triggerResolved = true;
+      }
+    } else if (_triggerResolved == false) {
+      int holdType = Buttons::getHoldType(millis() - _triggerHoldStart);
+      if (holdType != _triggerHoldType) {
+        _triggerHoldType = holdType;
+        if (onTriggerHeld(holdType)) {
+          _triggerResolved = true;
+        }
+      }
+    }
+  } else if (_triggerHeld) {
+    if (_triggerResolved == false) {
+      onTriggerReleased(Buttons::getHoldType(millis() - _triggerHoldStart));
+    }
+    _triggerHeld = false;
+    _triggerResolved = false;
+  }
+}
+
+boolean Gun::onTriggerPressed()
 {
-  GunMode* newGunMode = _gunMode->triggerPressed(*this);
-  if (newGunMode) {
-    _gunMode = newGunMode;
+  GunMode* newGunMode = _gunMode->onTriggerPressed(*this);
+  if (newGunMode != NULL) {
+    setGunMode(newGunMode);
     return true;
   }
   return false;
 }
 
-boolean Gun::triggerHeld(int holdType)
+boolean Gun::onTriggerHeld(int holdType)
 {
-  GunMode* newGunMode = _gunMode->triggerHeld(*this, holdType);
-  if (newGunMode) {
-    _gunMode = newGunMode;
+  GunMode* newGunMode = _gunMode->onTriggerHeld(*this, holdType);
+  if (newGunMode != NULL) {
+    setGunMode(newGunMode);
     return true;
   }
   return false;
 }
 
-boolean Gun::triggerReleased(int holdType)
+boolean Gun::onTriggerReleased(int holdType)
 {
-  GunMode* newGunMode = _gunMode->triggerReleased(*this, holdType);
-  if (newGunMode) {
-    _gunMode = newGunMode;
+  GunMode* newGunMode = _gunMode->onTriggerReleased(*this, holdType);
+  if (newGunMode != NULL) {
+    setGunMode(newGunMode);
     return true;
   }
   return false;

@@ -18,10 +18,11 @@ class Gun;
 
 class GunMode {
   public:
+    virtual void onEnter(Gun gun);
+    virtual GunMode* onTriggerPressed(Gun gun);
+    virtual GunMode* onTriggerHeld(Gun gun, int holdType);
+    virtual GunMode* onTriggerReleased(Gun gun, int holdType);
     virtual void tick(Gun gun) = 0;
-    GunMode* triggerPressed(Gun gun);
-    GunMode* triggerHeld(Gun gun, int holdType);
-    GunMode* triggerReleased(Gun gun, int holdType);
 };
 
 class DebugMenuGunMode : public GunMode {
@@ -32,9 +33,10 @@ class DebugMenuGunMode : public GunMode {
       return &singleton;
     }
     
+    void onEnter(Gun gun);
+    GunMode* onTriggerHeld(Gun gun, int holdType);
+    GunMode* onTriggerReleased(Gun gun, int holdType);
     void tick(Gun gun);
-    GunMode* triggerHeld(Gun gun, int holdType);
-    GunMode* triggerReleased(Gun gun, int holdType);
     
   private:
     DebugMenuGunMode() {}
@@ -50,9 +52,9 @@ class ActiveGunMode : public GunMode {
       return &singleton;
     }
     
+    void onEnter(Gun gun);
+    GunMode* onTriggerHeld(Gun gun, int holdType);
     void tick(Gun gun);
-    GunMode* triggerHeld(Gun gun, int holdType);
-    GunMode* triggerReleased(Gun gun, int holdType);
 
   private:
     ActiveGunMode() {}
@@ -60,8 +62,13 @@ class ActiveGunMode : public GunMode {
 
 class CylonGunMode : public GunMode {
   public:
-    static CylonGunMode& getInstance();
+    static CylonGunMode* getInstance()
+    {
+      static CylonGunMode singleton;
+      return &singleton;
+    }
 
+    void onEnter(Gun gun);
     void tick(Gun gun);
     
   private:
@@ -71,7 +78,11 @@ class CylonGunMode : public GunMode {
 
 class RainbowGunMode : public GunMode {
   public:
-    static RainbowGunMode& getInstance();
+    static RainbowGunMode* getInstance()
+    {
+      static RainbowGunMode singleton;
+      return &singleton;
+    }
 
     void tick(Gun gun);
     
@@ -82,7 +93,11 @@ class RainbowGunMode : public GunMode {
 
 class TranquilityGunMode : public GunMode {
   public:
-    static TranquilityGunMode& getInstance();
+    static TranquilityGunMode* getInstance()
+    {
+      static TranquilityGunMode singleton;
+      return &singleton;
+    }
 
     void tick(Gun gun);
     
@@ -93,7 +108,11 @@ class TranquilityGunMode : public GunMode {
 
 class PartyGunMode : public GunMode {
   public:
-    static PartyGunMode& getInstance();
+    static PartyGunMode* getInstance()
+    {
+      static PartyGunMode singleton;
+      return &singleton;
+    }
     
     void tick(Gun gun);
 

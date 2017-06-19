@@ -13,21 +13,32 @@
  * GunMode (stub methods)
  */
  
-GunMode* GunMode::triggerPressed(Gun gun) {
+void GunMode::onEnter(Gun gun) {
+  gun.clearColourMasks();
+}
+ 
+GunMode* GunMode::onTriggerPressed(Gun gun) {
   return NULL;
 }
 
-GunMode* GunMode::triggerHeld(Gun gun, int holdType) {
+GunMode* GunMode::onTriggerHeld(Gun gun, int holdType) {
+  if (holdType == HOLD_TYPE_MEDIUM) {
+    return DebugMenuGunMode::getInstance();
+  }
   return NULL;
 }
 
-GunMode* GunMode::triggerReleased(Gun gun, int holdType) {
+GunMode* GunMode::onTriggerReleased(Gun gun, int holdType) {
   return NULL;
 }
 
 /*
  * DebugMenuGunMode
  */
+ 
+void DebugMenuGunMode::onEnter(Gun gun) {
+  gun.resetColourMasks();
+}
 
 void DebugMenuGunMode::tick(Gun gun) {
   int index = _selection;
@@ -37,29 +48,29 @@ void DebugMenuGunMode::tick(Gun gun) {
   }
 }
 
-GunMode* DebugMenuGunMode::triggerHeld(Gun gun, int holdType) {
-  if (holdType == HOLD_TYPE_DEBUG) {
+GunMode* DebugMenuGunMode::onTriggerHeld(Gun gun, int holdType) {
+  if (holdType == HOLD_TYPE_VERY_LONG) {
     return ActiveGunMode::getInstance(); 
   }
   return NULL;
 }
 
-GunMode* DebugMenuGunMode::triggerReleased(Gun gun, int holdType) {
+GunMode* DebugMenuGunMode::onTriggerReleased(Gun gun, int holdType) {
   if (holdType < HOLD_TYPE_MEDIUM) {
     _selection = (_selection + 1) % DEBUG_MENU_SIZE;
   } else {
     switch (_selection) {
       case 0:
-        return &PartyGunMode::getInstance();
+        return PartyGunMode::getInstance();
         
       case 1:
-        return &RainbowGunMode::getInstance();
+        return RainbowGunMode::getInstance();
         
       case 2:
-        return &TranquilityGunMode::getInstance();
+        return TranquilityGunMode::getInstance();
         
       case 3:
-        return &CylonGunMode::getInstance();
+        return CylonGunMode::getInstance();
     }
   }
   return NULL;
@@ -68,22 +79,31 @@ GunMode* DebugMenuGunMode::triggerReleased(Gun gun, int holdType) {
 /*
  * ActiveGunMode
  */
+ 
+void ActiveGunMode::onEnter(Gun gun) {
+  gun.resetColourMasks();
+}
+ 
 void ActiveGunMode::tick(Gun gun) {
-  Serial.print("ActiveGunMode::tick()");
   for (int barrel = 0; barrel <= BARREL_MAX; barrel++) {
     gun._barrels[barrel]->tick();
   }
 }
 
-GunMode* ActiveGunMode::triggerHeld(Gun gun, int holdType) {
-  if (holdType == HOLD_TYPE_DEBUG) {
+GunMode* ActiveGunMode::onTriggerHeld(Gun gun, int holdType) {
+  if (holdType == HOLD_TYPE_VERY_LONG) {
     return DebugMenuGunMode::getInstance();
   }
+  return NULL;
 }
 
 /*
  * CylonGunMode
  */
+ 
+void CylonGunMode::onEnter(Gun gun) {
+  gun.resetColourMasks();
+}
 
 void CylonGunMode::tick(Gun gun) {
   int totalFrames = FRAMES_PER_SECOND * CYLON_DURATION;
@@ -103,6 +123,8 @@ void CylonGunMode::tick(Gun gun) {
   for (int barrel = 0; barrel <= BARREL_MAX; barrel++) {
     gun._barrels[barrel]->cylonTick(eyePosition);
   }
+
+  _frame++;
 }
 
 /*
@@ -119,6 +141,8 @@ void RainbowGunMode::tick(Gun gun) {
     float seed = (float) _frame / totalFrames + (float) barrel / (BARREL_MAX + 1);
     gun._barrels[barrel]->rainbowTick(seed);
   }
+
+  _frame++;
 }
 
 /*
@@ -135,6 +159,8 @@ void TranquilityGunMode::tick(Gun gun) {
     float seed = (float) _frame / totalFrames;
     gun._barrels[barrel]->tranquilityTick(seed);
   }
+
+  _frame++;
 }
 
 /*
@@ -155,4 +181,7 @@ void PartyGunMode::tick(Gun gun) {
     
     gun._barrels[barrel]->partyTick(seed);
   }
+
+  _frame++;
 }
+

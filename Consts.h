@@ -33,7 +33,7 @@
 #define BARREL_BLUE 2
 #define BARREL_MAX 2 // DEBUG
 
-#define FRAMES_PER_SECOND 1
+#define FRAMES_PER_SECOND 30
 
 #endif
 
