@@ -7,7 +7,7 @@
 #include "Easing.h"
 #include "GunModes.h"
 
-#define DEBUG_MENU_SIZE 12;
+#define DEBUG_MENU_SIZE 4;
 
 /*
  * GunMode (stub methods)
@@ -15,6 +15,10 @@
  
 void GunMode::onEnter(Gun gun) {
   gun.clearColourMasks();
+}
+
+GunMode* GunMode::onBarrelSelected(Gun gun, int barrel) {
+  return NULL;
 }
  
 GunMode* GunMode::onTriggerPressed(Gun gun) {
@@ -88,6 +92,13 @@ void ActiveGunMode::tick(Gun gun) {
   for (int barrel = 0; barrel <= BARREL_MAX; barrel++) {
     gun._barrels[barrel]->tick();
   }
+}
+
+GunMode* ActiveGunMode::onTriggerPressed(Gun gun) {
+  Serial.print("Trigger pressed: ");
+  Serial.println(gun._currentBarrel);
+  gun._barrels[gun._currentBarrel]->triggerAction();
+  return NULL;
 }
 
 GunMode* ActiveGunMode::onTriggerHeld(Gun gun, int holdType) {

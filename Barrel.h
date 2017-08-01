@@ -24,27 +24,39 @@
 #define CHARGED_INTENSITY_MIN 0.1
 #define CHARGED_INTENSITY_MAX 0.6
 
+#define FIRING_DURATION 3 // seconds
+
+#define CHARING_DURATION 3 // seconds
+
 class Barrel
 {
   public:
     Barrel(int reedPin, CRGB* barrelLed, CRGB* frontLed, CRGB* middleLed, CRGB* backLed);
+    
+    int _reedPin;
+    
     void setColourMask(float red, float green, float blue);
     void tick();
+    void triggerAction();
     void cylonTick(float eyePosition);
     void rainbowTick(float seed);
     void tranquilityTick(float seed);
     void partyTick(float seed);
     void debugTick(int selectedLed);
   private:
-    int _reedPin;
     CRGB* _leds[4];
     float _colourMask[3];
     int _frame;
-    int _mode;
+    int _barrelMode;
+    
     void setLed(int led, int red, int green, int blue);
     void setLedX(int led, int intensity);
     void setLedRot(int led, int rot);
+    void setBarrelMode(int barrelMode);
     void chargedTick();
+    void firingTick();
+    void deadTick();
+    void chargingTick();
     float getChargedFrameIntensity(int frame, int totalFrames);
 };
 

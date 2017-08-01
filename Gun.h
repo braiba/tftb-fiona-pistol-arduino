@@ -12,8 +12,9 @@ class GunMode;
 class Gun {
   public:
     Gun();
-    
+
     Barrel* _barrels[3];
+    int _currentBarrel;
 
     void tick();
     boolean onTriggerPressed();
@@ -33,6 +34,7 @@ class Gun {
     unsigned long _triggerHoldStart = 0;
     int _triggerHoldType = 0;
 
+    void checkBarrels();
     void checkTrigger();
 };
 

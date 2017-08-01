@@ -19,6 +19,7 @@ class Gun;
 class GunMode {
   public:
     virtual void onEnter(Gun gun);
+    virtual GunMode* onBarrelSelected(Gun gun, int barrel);
     virtual GunMode* onTriggerPressed(Gun gun);
     virtual GunMode* onTriggerHeld(Gun gun, int holdType);
     virtual GunMode* onTriggerReleased(Gun gun, int holdType);
@@ -53,8 +54,9 @@ class ActiveGunMode : public GunMode {
     }
     
     void onEnter(Gun gun);
-    GunMode* onTriggerHeld(Gun gun, int holdType);
     void tick(Gun gun);
+    GunMode* onTriggerPressed(Gun gun);
+    GunMode* onTriggerHeld(Gun gun, int holdType);
 
   private:
     ActiveGunMode() {}
