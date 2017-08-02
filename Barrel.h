@@ -15,16 +15,23 @@
 #define BARREL_LED_BACK 3
 #define BARREL_LED_MAX 3
 
+#define BARREL_SIDE_LED_MIN 1
+#define BARREL_SIDE_LED_MAX 3
+
 #define BARREL_MODE_CHARGED 0
 #define BARREL_MODE_FIRING 1
-#define BARREL_MODE_DEAD 2
-#define BARREL_MODE_CHARGING 3
+#define BARREL_MODE_DYING 2
+#define BARREL_MODE_DEAD 3
+#define BARREL_MODE_CHARGING 4
 
 #define CHARGED_DURATION 5 // seconds
 #define CHARGED_INTENSITY_MIN 0.1
 #define CHARGED_INTENSITY_MAX 0.6
 
-#define FIRING_DURATION 3 // seconds
+#define FIRING_DURATION 0.3 // seconds
+
+#define DYING_DURATION 0 // seconds
+#define DYING_INTENSITY_MAX 0
 
 #define CHARING_DURATION 3 // seconds
 
@@ -55,6 +62,7 @@ class Barrel
     void setBarrelMode(int barrelMode);
     void chargedTick();
     void firingTick();
+    void dyingTick();
     void deadTick();
     void chargingTick();
     float getChargedFrameIntensity(int frame, int totalFrames);

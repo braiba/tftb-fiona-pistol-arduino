@@ -38,6 +38,10 @@ void Barrel::tick()
       firingTick();
       break;
       
+    case BARREL_MODE_DYING:
+      dyingTick();
+      break;
+
     case BARREL_MODE_DEAD:
       deadTick();
       break;
@@ -175,14 +179,36 @@ float Barrel::getChargedFrameIntensity(int frame, int totalFrames)
 void Barrel::firingTick()
 {
   int totalFrames = FIRING_DURATION * FRAMES_PER_SECOND;
-  float intensity = Easing::easeInOutQuad((float) _frame, CHARGED_INTENSITY_MAX, -CHARGED_INTENSITY_MAX, totalFrames);
+  float intensity = Easing::easeInOutCubic((float) _frame, CHARGED_INTENSITY_MAX, DYING_INTENSITY_MAX - CHARGED_INTENSITY_MAX, totalFrames);
 
-  for (int led = 0; led <= BARREL_LED_MAX; led++) {
+  for (int led = BARREL_SIDE_LED_MIN; led <= BARREL_SIDE_LED_MAX; led++) {
     setLedX(led, intensity * 255);
   }
-  
+
+  if (_frame < totalFrames / 2) {
+    intensity = Easing::easeInOutQuad((float) _frame, 0, CHARGED_INTENSITY_MAX, totalFrames / 2);
+  } else {
+    intensity = Easing::easeInOutQuad((float) _frame - (int) (totalFrames / 2), CHARGED_INTENSITY_MAX, DYING_INTENSITY_MAX - CHARGED_INTENSITY_MAX, totalFrames / 2);
+  }
+  setLedX(BARREL_LED_MUZZLE, intensity * 255);
+
   _frame++;
-  if (_frame == totalFrames) {
+  if (_frame >= totalFrames) {
+    setBarrelMode(BARREL_MODE_DYING);
+  }
+}
+
+void Barrel::dyingTick()
+{
+  int totalFrames = DYING_DURATION * FRAMES_PER_SECOND;
+  float intensity = Easing::easeOutQuad((float) _frame, DYING_INTENSITY_MAX, -DYING_INTENSITY_MAX, totalFrames);
+
+  for (int led = 0; led <= BARREL_SIDE_LED_MAX; led++) {
+    setLedX(led, intensity * 255);
+  }
+
+  _frame++;
+  if (_frame >= totalFrames) {
     setBarrelMode(BARREL_MODE_DEAD);
   }
 }
@@ -197,10 +223,19 @@ void Barrel::deadTick()
 void Barrel::chargingTick()
 {
   int totalFrames = CHARGED_DURATION * FRAMES_PER_SECOND;
-  float intensity = Easing::easeInOutQuad((float) _frame, 0, CHARGED_INTENSITY_MIN, totalFrames);
+  int framesPerLed = (int) (totalFrames / (BARREL_SIDE_LED_MAX - BARREL_SIDE_LED_MIN + 1));
+  int currentLed = BARREL_LED_MAX - (_frame / framesPerLed);
 
-  for (int led = 0; led <= BARREL_LED_MAX; led++) {
-    setLedX(led, intensity * 255);
+  float intensity = Easing::easeInOutQuad((float) (_frame % framesPerLed), 0, CHARGED_INTENSITY_MIN, framesPerLed);
+
+  for (int led = 1; led <= BARREL_LED_MAX; led++) {
+    if (led == currentLed) {
+      setLedX(led, intensity * 255);
+    } else if (led > currentLed) {
+      setLedX(led, CHARGED_INTENSITY_MIN * 255);
+    } else {
+      setLedX(led, 0);
+    }
   }
   setLedX(BARREL_LED_MUZZLE, 0);
   

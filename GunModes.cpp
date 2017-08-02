@@ -95,8 +95,6 @@ void ActiveGunMode::tick(Gun gun) {
 }
 
 GunMode* ActiveGunMode::onTriggerPressed(Gun gun) {
-  Serial.print("Trigger pressed: ");
-  Serial.println(gun._currentBarrel);
   gun._barrels[gun._currentBarrel]->triggerAction();
   return NULL;
 }

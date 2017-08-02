@@ -11,7 +11,6 @@
 
 Gun::Gun()
 {
-  // Serial.println("Gun setup");
   pinMode(PIN_TRIGGER, INPUT);
   FastLED.addLeds<WS2812, PIN_DATA, GRB>(_leds, NUM_LEDS);
   
@@ -42,7 +41,6 @@ Gun::Gun()
   // For some reason this currently stops the memory allocation issues
   FastLED.show();
 
-  _currentBarrel = -1;
   setGunMode(ActiveGunMode::getInstance());
 }
 
@@ -64,8 +62,8 @@ void Gun::tick()
 void Gun::checkBarrels() {
   int selectedBarrel = -1;
   for (int barrel = 0; barrel <= BARREL_MAX; barrel++) {
-    int triggerState = digitalRead(_barrels[barrel]->_reedPin);
-    if (triggerState == HIGH) {
+    int barrelState = digitalRead(_barrels[barrel]->_reedPin);
+    if (barrelState == HIGH) {
       selectedBarrel = barrel;
       break;
     }

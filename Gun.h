@@ -14,7 +14,7 @@ class Gun {
     Gun();
 
     Barrel* _barrels[3];
-    int _currentBarrel;
+    int _currentBarrel = -1;
 
     void tick();
     boolean onTriggerPressed();
@@ -37,6 +37,5 @@ class Gun {
     void checkBarrels();
     void checkTrigger();
 };
-
 
 #endif

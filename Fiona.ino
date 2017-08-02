@@ -6,8 +6,6 @@ Gun* gun;
 void setup() { 
   Serial.begin(9600);
   randomSeed(analogRead(0));
-
-  Serial.println("Root setup");
   
   gun = new Gun();
 }
